@@ -1,0 +1,26 @@
+{
+	"compilerOptions": {
+		"inlineSourceMap": false,
+		"declaration": false,
+		"outDir": "build",
+		"noImplicitAny": true,
+		"target": "es6",
+		"module": "commonjs",
+		"noEmitOnError": true,
+		"types": [
+			// add node as an option
+			"node",
+			"promise"
+		],
+		// typeRoots option has been previously configured
+		"typeRoots": [
+			// add path to @types
+			"node_modules/@types"
+		]
+	},
+	"files": [		
+		"src/helpers.ts",
+		"src/node_helper.ts",		
+		"src/MMM-RouteInfo.ts"
+	]
+}

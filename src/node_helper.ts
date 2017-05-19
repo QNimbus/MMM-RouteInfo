@@ -27,7 +27,7 @@ let ANWB = {
 
 			this.apiKeyPromise = requestpromise(queryString)
 				.then((htmlString: string) => {
-					console.log("Fetching ANWB API key");
+					// console.log("Fetching ANWB API key");
 					let match: string[] = apiKeyRegEx.exec(htmlString);
 					if (match !== null) {
 						let key: string = match[1];
@@ -95,7 +95,7 @@ class Address implements IAddress {
 	private _addressPromise = (resolve: (response: any) => AddressPromise, reject: (error: Error) => AddressPromise) => {
 		let _getGoogleMapsResults = (response: any) => {
 			if (response.json.status === "OK") {
-				console.log("Fetching Google Maps location data for - " + response.json.results[0].formatted_address);
+				// console.log("Fetching Google Maps location data for - " + response.json.results[0].formatted_address);
 				this.addressComponents = response.json.results[0].address_components;
 				this.formattedAddress = response.json.results[0].formatted_address;
 				this.latlong = `${response.json.results[0].geometry.location.lat},${response.json.results[0].geometry.location.lng}`;
@@ -204,7 +204,7 @@ class Route implements IRoute {
 				// Construct a HTTP GET url using a helper function to create a parameter string
 				let queryString = url + path + helpers.formatParams(parameters);
 				return requestpromise(queryString).then((result: any) => {
-					console.log("Fetching route information for " + value[0].origin.formattedAddress + " <--> " + value[0].destination.formattedAddress);
+					// console.log("Fetching route information for " + value[0].origin.formattedAddress + " <--> " + value[0].destination.formattedAddress);
 					result = JSON.parse(result);
 					return Promise.resolve({
 						route: result.routes[0],

@@ -12,7 +12,7 @@ declare interface IObjectProperties {
 }
 
 declare interface IModuleDefinition extends IObjectProperties {
-	defaults?: {};
+	defaults?: IObjectProperties;
 	requiresVersion?: string;
 
 	init?(): void;
@@ -22,6 +22,7 @@ declare interface IModuleDefinition extends IObjectProperties {
 	getStyles?(): Array<string>;
 	getScripts?(): Array<string>;
 	getHeader?(): string;
+	getTranslations?(): IObjectProperties;
 
 	notificationReceived?(notification: string, Payload: any, sender?: any): void;
 	socketNotificationReceived?(notification: string, payload: Payload): void;

@@ -8,11 +8,11 @@ Note: Currently this module only supports routes within the Netherlands. It uses
 
 1. Navigate into your MagicMirror's `modules` folder and run:
 ```
-git clone https://github.com/QNimbus/MMM-RouteInfo.git
+$ git clone https://github.com/QNimbus/MMM-RouteInfo.git
 ```
 1. Install the dependencies: 
 ```
-cd MMM-RouteInfo && npm install --only=production
+$ cd MMM-RouteInfo && npm install --only=production
 ```
 
 ## Using the module
@@ -56,9 +56,16 @@ var config = {
 | `timeFormat`     | *Optional* Timeformat of times used in the module<br>**Type:** `int` (e.g. 12 or 24)<br>Default `config.timeFormat`
 | `lang`           | *Optional* Display language for the module<br>**Type:** `string` (e.g. 'en', 'nl' or 'fr')<br>Default `config.language`
 | `animationSpeed` | *Optional* Speed of the animations<br>**Type:** `int`(milliseconds)<br>Default 1000 milliseconds (1 second)
-| `updateInterval` | *Optional* Interval at which the module fetches new data<br>**Type:** `int`(milliseconds)<br>Default 60000 milliseconds (60 seconds)
+| `updateInterval` | *Optional* Interval at which the module fetches new data<br>**Type:** `int`(milliseconds)<br>Default 300000 milliseconds (5 minutes)
 | `initialLoadDelay` | *Optional* Initial delay when module is first loaded<br>**Type:** `int`(milliseconds)<br>Default 0 milliseconds (0 seconds)
-| `retryDelay`     | *Optional* If no data is received, retry again after delay<br>**Type:** `int`(milliseconds)<br>Default 5000 milliseconds (5 seconds)
+| `retryDelay`     | *Optional* If no data is received, retry again after delay<br>**Type:** `int`(milliseconds)<br>Default 10000 milliseconds (10 seconds)
+
+## Building from TypeScript source
+
+If you want to compile the TypeScript source (`src` folder), you can use the `typescript` grunt task as defined in `Gruntfile.js`. This task also runs ESLint against the compiled javascript files
+```
+$ node_modules/grun/bin/grunt typescript
+```
 
 ## Screenshots
 

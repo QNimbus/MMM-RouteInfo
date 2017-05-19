@@ -47,7 +47,8 @@ module.exports = function (grunt) {
 						"MD018": false,
 						"MD012": false,
 						"MD026": false,
-						"MD038": false
+						"MD038": false,
+						"MD014": false
 					}
 				},
 				src: ["README.md", "CHANGELOG.md", "LICENSE.txt"]
@@ -95,6 +96,6 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks("grunt-jsbeautifier");
 	grunt.loadNpmTasks("grunt-contrib-copy");
 
-	grunt.registerTask("typescript", ["ts", "jsbeautifier", "copy:typescript"]);
+	grunt.registerTask("typescript", ["ts", "jsbeautifier", "copy:typescript", "eslint", "markdownlint"]);
 	grunt.registerTask("default", ["eslint", "stylelint", "jsonlint", "markdownlint", "yamllint"]);
 };

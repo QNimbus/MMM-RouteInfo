@@ -4,9 +4,10 @@ Module.register("MMM-RouteInfo", {
 	routeData: {},
 	defaults: {
 		animationSpeed: 1000,
-		updateInterval: 60000,
+		updateInterval: 30000,
+		cycleInterval: 5000,
 		initialLoadDelay: 0,
-		retryDelay: 5000,
+		retryDelay: 10000,
 		timeFormat: config.timeFormat,
 		lang: config.language,
 		googleMapsApiKey: "",
@@ -23,10 +24,17 @@ Module.register("MMM-RouteInfo", {
 	start: function () {
 		Log.info("Starting module: " + this.name);
 		moment.locale(config.language);
+		this.intervalId = null;
 		this.loaded = false;
 		this.error = false;
 		this.errorMessage = "";
+		this.displayCycle = 0;
 		this.scheduleUpdate(this.config.initialLoadDelay);
+		let self = this;
+		setInterval(function () {
+			self.displayCycle = ++self.displayCycle % 3;
+			self.updateDom(self.config.animationSpeed);
+		}, self.config.cycleInterval);
 	},
 	scheduleUpdate: function (delay = this.config.updateInterval) {
 		let nextLoad = this.config.updateInterval;
@@ -41,13 +49,13 @@ Module.register("MMM-RouteInfo", {
 	getDom: function () {
 		let self = this;
 		let wrapper = document.createElement("div");
-		if (this.config.googleMapsApiKey === "") {
-			wrapper.innerHTML = "Please set a <i>Google Maps API key</i> (googleMapsApiKey) in the module config: " + this.name + ".";
-			wrapper.className = "dimmed light xsmall";
-			return wrapper;
-		} else if (!this.loaded) {
+		if (!this.loaded) {
 			wrapper.innerHTML = this.translate("LOADING");
 			wrapper.className = "dimmed light small";
+			return wrapper;
+		} else if (this.config.googleMapsApiKey === "") {
+			wrapper.innerHTML = "Please set a <i>Google Maps API key</i> (googleMapsApiKey) in the module config: " + this.name + ".";
+			wrapper.className = "dimmed light xsmall";
 			return wrapper;
 		} else if (this.error === true) {
 			wrapper.innerHTML = this.translate(this.errorMessage);
@@ -55,34 +63,53 @@ Module.register("MMM-RouteInfo", {
 			return wrapper;
 		} else if (this.routeData) {
 			let wrapperRouteInfo = document.createElement("div");
-			let depTimeSpan = document.createElement("span");
-			let arrTimeSpan = document.createElement("span");
-			let travelTimeSpan = document.createElement("span");
-			depTimeSpan.innerHTML = this.routeData.departureTime.format("LT");
-			arrTimeSpan.innerHTML = this.routeData.arrivalTime.format("LT");
-			travelTimeSpan.innerHTML = this.routeData.travelTime;
-			depTimeSpan.className = "bright";
-			arrTimeSpan.className = "bright";
-			travelTimeSpan.className = "bright";
-			switch (this.routeData.delay) {
-			case 0:
+			switch (this.displayCycle) {
+			case 2:
 				{
-					wrapperRouteInfo.innerHTML += this.translate("There is currently no delay enroute") + "<br>";
+					let depTimeSpan = document.createElement("span");
+					let arrTimeSpan = document.createElement("span");
+					let travelTimeSpan = document.createElement("span");
+					depTimeSpan.innerHTML = this.routeData.departureTime.format("LT");
+					arrTimeSpan.innerHTML = this.routeData.arrivalTime.format("LT");
+					travelTimeSpan.innerHTML = this.routeData.travelTime;
+					depTimeSpan.className = "bright";
+					arrTimeSpan.className = "bright";
+					travelTimeSpan.className = "bright";
+					switch (this.routeData.delay) {
+					case 0:
+						{
+							wrapperRouteInfo.innerHTML += this.translate("There is currently no delay enroute") + "<br>";
+							break;
+						}
+					default:
+						{
+							wrapperRouteInfo.innerHTML += this.translate("Delay enroute is") + ` ${this.routeData.delay} ` + this.translate("minutes") + "<br>";
+						}
+					}
+					wrapperRouteInfo.innerHTML += this.translate("Travel time is") + " ";
+					wrapperRouteInfo.appendChild(travelTimeSpan);
+					wrapperRouteInfo.innerHTML += " (" + this.routeData.distance + " km)";
+					wrapperRouteInfo.innerHTML += "<br>" + this.translate("Depart from") + ` ${this.config.routeOrigin.label} @ `;
+					wrapperRouteInfo.appendChild(depTimeSpan);
+					wrapperRouteInfo.innerHTML += "<br>" + this.translate("Arrive at") + ` ${this.config.routeDestination.label} @ `;
+					wrapperRouteInfo.appendChild(arrTimeSpan);
+					wrapperRouteInfo.className = "light small";
 					break;
 				}
-			default:
+			case 0:
 				{
-					wrapperRouteInfo.innerHTML += this.translate("Delay enroute is") + ` ${this.routeData.delay} ` + this.translate("minutes") + "<br>";
+					let span0 = document.createElement("span");
+					span0.classList.add("light", "bright", "medium");
+					span0.innerHTML = this.config.routeOrigin.label;
+					wrapperRouteInfo.classList.add("regular", "normal", "small");
+					wrapperRouteInfo.innerHTML += this.translate("Depart from") + " ";
+					wrapperRouteInfo.appendChild(span0);
+				}
+			case 1:
+				{
+					break;
 				}
 			}
-			wrapperRouteInfo.innerHTML += this.translate("Travel time is") + " ";
-			wrapperRouteInfo.appendChild(travelTimeSpan);
-			wrapperRouteInfo.innerHTML += " (" + this.routeData.distance + " km)";
-			wrapperRouteInfo.innerHTML += "<br>" + this.translate("Depart from") + ` ${this.config.routeOrigin.label} @ `;
-			wrapperRouteInfo.appendChild(depTimeSpan);
-			wrapperRouteInfo.innerHTML += "<br>" + this.translate("Arrive at") + ` ${this.config.routeDestination.label} @ `;
-			wrapperRouteInfo.appendChild(arrTimeSpan);
-			wrapperRouteInfo.className = "light small";
 			wrapper.appendChild(wrapperRouteInfo);
 		}
 		return wrapper;
@@ -115,9 +142,6 @@ Module.register("MMM-RouteInfo", {
 			this.routeData.delay = ~~(payload.data.route.summary.delay / 60);
 			this.routeData.delayPercentage = (payload.data.route.summary.duration > 0 ? +(payload.data.route.summary.delay / payload.data.route.summary.duration).toFixed(2) * 100 : 0);
 			this.routeData.roads = payload.data.route.summary.roadNumbers;
-			this.show(this.config.animationSpeed, {
-				lockString: this.identifier,
-			});
 		} else {
 			this.error = true;
 			this.errorMessage = payload.message;
@@ -140,7 +164,7 @@ Module.register("MMM-RouteInfo", {
 	socketNotificationReceived: function (notification, payload) {
 		if (notification === "ROUTE_INFO") {
 			this.processData(payload);
-			this.updateDom(this.config.fadeSpeed);
+			this.updateDom(this.config.animationSpeed);
 		}
 	},
 	prettyTimeFormat: function (seconds, showSeconds = false) {
